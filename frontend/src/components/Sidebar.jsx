@@ -1,8 +1,9 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   LayoutDashboard, Cpu, Calendar, BarChart2,
-  ShieldAlert, LogOut, Zap, X, ChevronRight
+  ShieldAlert, LogOut, Zap, X, ChevronRight, ArrowLeft,
+  Users, Activity, Shield
 } from 'lucide-react';
 
 const navItems = [
@@ -13,24 +14,35 @@ const navItems = [
 ];
 
 const adminItems = [
-  { to: '/admin', icon: ShieldAlert, label: 'Admin Panel' },
+  { to: '/admin', tab: 'overview', icon: LayoutDashboard, label: 'Overview' },
+  { to: '/admin', tab: 'users',    icon: Users,           label: 'Daftar Pengguna' },
+  { to: '/admin', tab: 'logs',     icon: Activity,        label: 'Log Aktivitas' },
+  { to: '/admin', tab: 'security', icon: Shield,          label: 'Log Keamanan' },
 ];
 
 export default function Sidebar({ open, onClose }) {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
+
+  const queryParams = new URLSearchParams(search);
+  const currentTab = queryParams.get('tab') || 'overview';
+  const isAdminPage = pathname.startsWith('/admin');
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  const navClass = ({ isActive }) =>
-    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+  const getNavClass = (to, tabKey) => {
+    const isActive = pathname === to && (tabKey ? currentTab === tabKey : true);
+    return `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
       isActive
         ? 'bg-neutral-100 text-neutral-900'
         : 'text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50'
     }`;
+  };
+
 
   return (
     <>
@@ -96,26 +108,18 @@ export default function Sidebar({ open, onClose }) {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-0.5">
-          <p className="px-3 pb-2 pt-1 text-[10px] font-bold tracking-[0.08em] uppercase text-text-placeholder">
-            Menu Utama
-          </p>
-          {navItems.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to} className={navClass} onClick={onClose}>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Icon size={17} />
-              </div>
-              <span className="flex-1">{label}</span>
-              <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity -mr-1" />
-            </NavLink>
-          ))}
-
-          {isAdmin() && (
+          {isAdminPage ? (
             <>
-              <p className="px-3 pb-2 pt-5 text-[10px] font-bold tracking-[0.08em] uppercase text-text-placeholder">
+              <p className="px-3 pb-2 pt-1 text-[10px] font-bold tracking-[0.08em] uppercase text-text-placeholder">
                 Administrasi
               </p>
-              {adminItems.map(({ to, icon: Icon, label }) => (
-                <NavLink key={to} to={to} className={navClass} onClick={onClose}>
+              {adminItems.map(({ to, tab, icon: Icon, label }) => (
+                <NavLink 
+                  key={tab} 
+                  to={`${to}?tab=${tab}`} 
+                  className={getNavClass(to, tab)} 
+                  onClick={onClose}
+                >
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Icon size={17} />
                   </div>
@@ -123,6 +127,36 @@ export default function Sidebar({ open, onClose }) {
                   <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity -mr-1" />
                 </NavLink>
               ))}
+            </>
+          ) : (
+            <>
+              <p className="px-3 pb-2 pt-1 text-[10px] font-bold tracking-[0.08em] uppercase text-text-placeholder">
+                Menu Utama
+              </p>
+              {navItems.map(({ to, icon: Icon, label }) => (
+                <NavLink key={to} to={to} className={(navProps) => getNavClass(to)} onClick={onClose}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Icon size={17} />
+                  </div>
+                  <span className="flex-1">{label}</span>
+                  <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity -mr-1" />
+                </NavLink>
+              ))}
+
+              {isAdmin() && (
+                <>
+                  <p className="px-3 pb-2 pt-5 text-[10px] font-bold tracking-[0.08em] uppercase text-text-placeholder">
+                    Administrasi
+                  </p>
+                  <NavLink to="/admin?tab=overview" className={(navProps) => getNavClass('/admin', 'overview')} onClick={onClose}>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <ShieldAlert size={17} />
+                    </div>
+                    <span className="flex-1">Admin Panel</span>
+                    <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity -mr-1" />
+                  </NavLink>
+                </>
+              )}
             </>
           )}
         </nav>
