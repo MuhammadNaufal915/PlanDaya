@@ -26,22 +26,31 @@ export default function ReportsPage() {
   const maxWatt = top.reduce((m, d) => Math.max(m, d.power_watt || 0), 1);
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="page-shell">
+
+      {/* Header */}
+      <div className="page-header">
         <div>
-          <h2 className="font-display font-bold text-xl text-white">Laporan Energi</h2>
-          <p className="text-white/40 text-sm mt-1">Analisis konsumsi listrik perangkat Anda</p>
+          <h2 className="font-display font-bold text-xl text-text-primary">Laporan Energi</h2>
+          <p className="text-sm mt-0.5 text-text-muted">Analisis konsumsi listrik perangkat Anda</p>
         </div>
-        <button onClick={load} className="btn-secondary text-sm px-4 py-2">
+        <button onClick={load} className="btn-secondary text-sm px-4 py-2.5">
           <RefreshCw size={15} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-1 p-1 rounded-xl w-fit bg-subtle border border-border-default">
         {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-white/50 hover:text-white hover:bg-white/5'}`}>
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              tab === t.key
+                ? 'bg-elevated text-text-primary shadow-[0_1px_4px_rgba(0,0,0,0.10)]'
+                : 'text-text-muted'
+            }`}
+          >
             {t.label}
           </button>
         ))}
@@ -49,65 +58,106 @@ export default function ReportsPage() {
 
       {loading ? (
         <div className="grid sm:grid-cols-3 gap-4">
-          {[1,2,3].map(i => <div key={i} className="h-28 rounded-2xl bg-white/5 animate-pulse" />)}
+          {[1, 2, 3].map(i => <div key={i} className="h-28 rounded-2xl skeleton" />)}
         </div>
       ) : data ? (
         <>
           {/* Summary cards */}
           <div className="grid sm:grid-cols-3 gap-4">
-            <div className="stat-card">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap size={16} className="text-amber-400" />
-                <p className="text-white/50 text-xs">Total Daya</p>
+            {[
+              {
+                icon: Zap,
+                label: 'Total Daya',
+                value: `${data.total_watt}W`,
+                sub: `${data.device_count} perangkat`,
+                iconColor: '#E8A020',
+                iconBg: 'rgba(232,160,32,0.10)',
+                accent: '#E8A020',
+              },
+              {
+                icon: TrendingUp,
+                label: 'Konsumsi',
+                value: `${data.total_kwh} kWh`,
+                sub: `periode ${tabs.find(t => t.key === tab)?.label.toLowerCase()}`,
+                iconColor: '#4A80C4',
+                iconBg: 'rgba(74,128,196,0.10)',
+                accent: '#4A80C4',
+              },
+              {
+                icon: BarChart2,
+                label: 'Estimasi Biaya',
+                value: `Rp ${(data.estimated_cost ?? 0).toLocaleString('id-ID')}`,
+                sub: data.currency,
+                iconColor: '#9050C8',
+                iconBg: 'rgba(144,80,200,0.10)',
+                accent: '#9050C8',
+              },
+            ].map(({ icon: Icon, label, value, sub, iconColor, iconBg, accent }) => (
+              <div
+                    key={label}
+                    className="stat-card"
+                  >
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: iconBg }}>
+                    <Icon size={16} style={{ color: iconColor }} />
+                  </div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-placeholder">{label}</p>
+                </div>
+                <p className="font-display font-bold text-2xl mb-0.5 text-text-primary">{value}</p>
+                <p className="text-xs text-text-placeholder">{sub}</p>
+                <div className="mt-3 h-0.5 rounded-full opacity-40"
+                  style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }} />
               </div>
-              <p className="text-white text-2xl font-display font-bold">{data.total_watt}W</p>
-              <p className="text-white/30 text-xs mt-1">{data.device_count} perangkat</p>
-            </div>
-            <div className="stat-card">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp size={16} className="text-blue-400" />
-                <p className="text-white/50 text-xs">Konsumsi</p>
-              </div>
-              <p className="text-white text-2xl font-display font-bold">{data.total_kwh} kWh</p>
-              <p className="text-white/30 text-xs mt-1">periode {tabs.find(t => t.key === tab)?.label.toLowerCase()}</p>
-            </div>
-            <div className="stat-card">
-              <div className="flex items-center gap-2 mb-2">
-                <BarChart2 size={16} className="text-purple-400" />
-                <p className="text-white/50 text-xs">Estimasi Biaya</p>
-              </div>
-              <p className="text-white text-2xl font-display font-bold">
-                Rp {(data.estimated_cost ?? 0).toLocaleString('id-ID')}
-              </p>
-              <p className="text-white/30 text-xs mt-1">{data.currency}</p>
-            </div>
+            ))}
           </div>
 
           {/* Top devices */}
           {top.length > 0 && (
-            <div className="glass-card p-6">
+            <div className="card p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Award size={18} className="text-amber-400" />
-                <h3 className="text-white font-semibold">Perangkat Terboros</h3>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-warning/10">
+                  <Award size={16} className="text-warning" />
+                </div>
+                <h3 className="font-semibold text-sm text-text-primary">Perangkat Terboros</h3>
               </div>
               <div className="space-y-4">
                 {top.map((dev, i) => (
                   <div key={dev.id} className="flex items-center gap-4">
-                    <span className="text-white/20 text-sm font-bold w-5 text-right">{i + 1}</span>
+                    {/* Rank */}
+                    <div
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                        i === 0
+                          ? 'bg-warning/15 text-[#B8760A]'
+                          : 'bg-base text-text-placeholder'
+                      }`}
+                    >
+                      {i + 1}
+                    </div>
+
+                    {/* Bar */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-white text-sm font-medium truncate">{dev.name}</p>
-                        <span className="text-amber-400 text-xs font-semibold ml-2">{dev.power_watt}W</span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <p className="text-sm font-semibold truncate text-text-primary">{dev.name}</p>
+                        <span className="text-xs font-bold ml-3 flex-shrink-0 px-2 py-0.5 rounded-lg bg-warning/10 text-[#B8760A]">
+                          {dev.power_watt}W
+                        </span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <div className="h-2 rounded-full overflow-hidden bg-subtle">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-700"
-                          style={{ width: `${(dev.power_watt / maxWatt) * 100}%` }}
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${(dev.power_watt / maxWatt) * 100}%`,
+                            background: i === 0
+                              ? 'linear-gradient(90deg, #E8A020, #F5C842)'
+                              : 'linear-gradient(90deg, #1C1C1E, #6E6E73)',
+                          }}
                         />
                       </div>
-                      <div className="flex gap-3 mt-1">
-                        <span className="text-white/30 text-xs">{dev.monthly_kwh} kWh/bln</span>
-                        <span className="text-white/30 text-xs">≈ Rp {(dev.monthly_cost_idr ?? 0).toLocaleString('id-ID')}</span>
+                      <div className="flex gap-3 mt-1.5">
+                        <span className="text-xs text-text-placeholder">{dev.monthly_kwh} kWh/bln</span>
+                        <span className="text-xs text-text-placeholder">
+                          ≈ Rp {(dev.monthly_cost_idr ?? 0).toLocaleString('id-ID')}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -117,9 +167,12 @@ export default function ReportsPage() {
           )}
         </>
       ) : (
-        <div className="glass-card p-12 text-center">
-          <BarChart2 size={48} className="text-white/10 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">Tambah perangkat terlebih dahulu untuk melihat laporan.</p>
+        <div className="card p-14 text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-base">
+            <BarChart2 size={28} className="text-text-placeholder" />
+          </div>
+          <p className="font-semibold mb-1.5 text-text-secondary">Belum ada data laporan</p>
+          <p className="text-sm text-text-placeholder">Tambah perangkat terlebih dahulu untuk melihat laporan.</p>
         </div>
       )}
     </div>

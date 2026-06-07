@@ -1,171 +1,283 @@
 import { Link } from 'react-router-dom';
-import { Zap, Shield, BarChart2, Clock, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Zap, Shield, BarChart2, Clock, ChevronRight, CheckCircle2, ArrowRight } from 'lucide-react';
 
 const features = [
   {
     icon: Zap,
     title: 'Monitor Konsumsi',
     desc: 'Pantau konsumsi listrik perangkat Anda secara real-time dan terstruktur.',
-    color: 'text-amber-400',
-    bg: 'bg-amber-400/10',
+    iconColor: '#E8A020',
+    iconBg: 'rgba(232,160,32,0.12)',
   },
   {
     icon: Clock,
     title: 'Jadwal Otomatis',
     desc: 'Atur jadwal penggunaan perangkat agar listrik tidak terbuang sia-sia.',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-400/10',
+    iconColor: '#1C1C1E',
+    iconBg: 'rgba(28,28,30,0.08)',
   },
   {
     icon: BarChart2,
     title: 'Laporan Energi',
     desc: 'Analisis laporan harian, mingguan, dan bulanan penggunaan daya Anda.',
-    color: 'text-blue-400',
-    bg: 'bg-blue-400/10',
+    iconColor: '#4A80C4',
+    iconBg: 'rgba(74,128,196,0.12)',
   },
   {
     icon: Shield,
     title: 'Keamanan Data',
     desc: 'Sistem berlapis dengan enkripsi end-to-end dan logging keamanan penuh.',
-    color: 'text-purple-400',
-    bg: 'bg-purple-400/10',
+    iconColor: '#9050C8',
+    iconBg: 'rgba(144,80,200,0.12)',
   },
 ];
 
 const benefits = [
-  'Hemat tagihan listrik hingga 30%',
-  'Kontrol perangkat dari mana saja',
-  'Laporan energi otomatis setiap bulan',
-  'Sistem keamanan berlapis',
+  { text: 'Hemat tagihan listrik hingga 30%' },
+  { text: 'Kontrol perangkat dari mana saja' },
+  { text: 'Laporan energi otomatis setiap bulan' },
+  { text: 'Sistem keamanan berlapis' },
+];
+
+const stats = [
+  { value: '30%',  label: 'Hemat Listrik' },
+  { value: '24/7', label: 'Monitoring' },
+  { value: '100%', label: 'Data Aman' },
 ];
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #07061a 0%, #0f0e2e 50%, #07061a 100%)' }}>
+    <div className="min-h-screen bg-base">
 
-      {/* ── Navbar ──────────────────────────────────────────────────────────── */}
-      <nav className="flex items-center justify-between px-6 lg:px-16 py-5 border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-[0_0_16px_rgba(16,185,129,0.5)]">
-            <Zap size={16} className="text-white" />
+      {/* ── Navbar ── */}
+      <nav className="sticky top-0 z-50 bg-white/94 backdrop-blur-[16px] border-b border-[#E5E5EA] shadow-[0_1px_6px_rgba(0,0,0,0.06)]">
+        <div className="max-w-[1200px] mx-auto px-6 py-10 h-16 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.25)] flex-shrink-0">
+              <Zap size={17} color="#fff" fill="#fff" />
+            </div>
+            <div>
+              <div className="font-display font-bold text-[15px] text-text-primary leading-[1.2]">
+                PlanDaya
+              </div>
+              <div className="text-[10px] text-text-placeholder leading-none">Energy Planner</div>
+            </div>
           </div>
-          <span className="font-display font-bold text-white text-xl">PlanDaya</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link to="/login" className="btn-secondary text-sm px-4 py-2">Masuk</Link>
-          <Link to="/register" className="btn-primary text-sm px-4 py-2">Daftar Gratis</Link>
+
+          {/* CTA */}
+          <div className="flex items-center gap-2">
+            <Link to="/login" className="btn-secondary px-4 py-2 text-sm">
+              Masuk
+            </Link>
+            <Link to="/register" className="btn-primary px-4 py-2 text-sm">
+              Daftar Gratis
+            </Link>
+          </div>
         </div>
       </nav>
 
-      {/* ── Hero ────────────────────────────────────────────────────────────── */}
-      <section className="relative px-6 lg:px-16 pt-20 pb-28 text-center overflow-hidden">
-        {/* Glow orbs */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-20 blur-3xl pointer-events-none"
-          style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)' }} />
-        <div className="absolute top-20 left-20 w-[300px] h-[300px] rounded-full opacity-10 blur-3xl pointer-events-none"
-          style={{ background: 'radial-gradient(circle, #4f46e5 0%, transparent 70%)' }} />
+      {/* ── Hero ── */}
+      <section className="relative overflow-hidden py-20">
+        {/* BG blobs */}
+        <div 
+          className="absolute -top-[100px] -right-[100px] w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(28,28,30,0.04) 0%, transparent 70%)' }} 
+        />
 
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 mb-8">
-          <Shield size={13} className="text-emerald-400" />
-          <span className="text-emerald-400 text-xs font-semibold tracking-wide uppercase">Blue Team Security Project</span>
-        </div>
+        <div className="max-w-[900px] mx-auto px-6 text-center">
 
-        <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-6 animate-slide-up">
-          Plan Smarter,{' '}
-          <span className="text-gradient">Save Energy Better.</span>
-        </h1>
+          {/* Headline */}
+          <h1
+            className="animate-slide-up font-display font-extrabold text-text-primary mt-[100px] mb-5 tracking-[-0.02em]"
+            style={{
+              fontSize: 'clamp(2.4rem, 6vw, 4rem)',
+              lineHeight: 1.12,
+            }}
+          >
+            Kelola Energi,{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-br from-[#1C1C1E] to-[#6E6E73]">
+              Lebih Cerdas.
+            </span>
+          </h1>
 
-        <p className="text-white/60 text-lg lg:text-xl max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up">
-          PlanDaya membantu pengguna mengatur jadwal penggunaan perangkat elektronik agar konsumsi listrik lebih efisien, hemat, dan terkontrol.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in">
-          <Link to="/register" className="btn-primary px-8 py-3 text-base">
-            Mulai Sekarang
-            <ChevronRight size={18} />
-          </Link>
-          <Link to="/login" className="btn-secondary px-8 py-3 text-base">
-            Sudah punya akun? Masuk
-          </Link>
-        </div>
-
-        {/* Stats strip */}
-        <div className="mt-16 grid grid-cols-3 gap-4 max-w-lg mx-auto">
-          {[
-            { value: '30%', label: 'Hemat Listrik' },
-            { value: '24/7', label: 'Monitoring' },
-            { value: '100%', label: 'Data Aman' },
-          ].map(stat => (
-            <div key={stat.label} className="glass-card py-4 px-3 text-center">
-              <p className="text-gradient text-2xl font-display font-bold">{stat.value}</p>
-              <p className="text-white/40 text-xs mt-1">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Features ────────────────────────────────────────────────────────── */}
-      <section className="px-6 lg:px-16 py-20">
-        <div className="text-center mb-12">
-          <h2 className="font-display font-bold text-3xl text-white mb-3">Fitur Unggulan</h2>
-          <p className="text-white/50 text-base max-w-lg mx-auto">
-            Semua yang Anda butuhkan untuk mengelola dan menghemat konsumsi listrik rumah atau kantor.
+          {/* Subtitle */}
+          <p className="animate-fade-in text-[1.0625rem] leading-[1.7] text-text-muted max-w-[560px] mx-auto mb-9">
+            PlanDaya membantu Anda mengatur jadwal penggunaan perangkat elektronik agar konsumsi listrik lebih efisien, hemat, dan terkontrol.
           </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
-          {features.map(({ icon: Icon, title, desc, color, bg }) => (
-            <div key={title} className="glass-card p-6 hover:border-white/20 transition-all duration-300 hover:-translate-y-1 group">
-              <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center mb-4`}>
-                <Icon size={22} className={color} />
+
+          {/* CTAs */}
+          <div className="animate-fade-in flex flex-wrap gap-3 justify-center">
+            <Link
+              to="/register"
+              className="btn-primary px-7 py-3 text-[0.9375rem]"
+            >
+              Mulai Sekarang <ChevronRight size={17} />
+            </Link>
+            <Link
+              to="/login"
+              className="btn-secondary px-7 py-3 text-[0.9375rem]"
+            >
+              Sudah punya akun? Masuk <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          {/* Stats strip */}
+          <div className="grid grid-cols-3 gap-[14px] max-w-[460px] mx-auto mt-[52px]">
+            {stats.map(({ value, label }) => (
+              <div
+                key={label}
+                className="bg-elevated border border-[#E5E5EA] rounded-2xl py-5 px-3 text-center shadow-card transition-all duration-250 hover:-translate-y-[3px] hover:shadow-[0_6px_20px_rgba(0,0,0,0.10)]"
+              >
+                <p className="font-display font-extrabold text-[1.6rem] text-text-primary leading-none">
+                  {value}
+                </p>
+                <p className="text-[11px] text-text-placeholder mt-1 font-medium">
+                  {label}
+                </p>
               </div>
-              <h3 className="text-white font-semibold mb-2">{title}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Benefits ────────────────────────────────────────────────────────── */}
-      <section className="px-6 lg:px-16 py-16">
-        <div className="max-w-4xl mx-auto glass-card p-8 lg:p-12 relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-64 h-64 rounded-full blur-3xl opacity-10 pointer-events-none"
-            style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)' }} />
-          <div className="grid lg:grid-cols-2 gap-8 items-center relative">
-            <div>
-              <h2 className="font-display font-bold text-3xl text-white mb-4">
-                Kenapa pilih <span className="text-gradient">PlanDaya?</span>
-              </h2>
-              <p className="text-white/50 text-base leading-relaxed mb-6">
-                PlanDaya dirancang khusus untuk proyek Blue Team keamanan jaringan, memastikan setiap data terlindungi dan setiap akses tercatat.
-              </p>
-              <Link to="/register" className="btn-primary inline-flex">
-                Coba Gratis <ChevronRight size={18} />
-              </Link>
-            </div>
-            <ul className="space-y-4">
-              {benefits.map(b => (
-                <li key={b} className="flex items-center gap-3">
-                  <CheckCircle2 size={20} className="text-emerald-400 flex-shrink-0" />
-                  <span className="text-white/70 text-sm">{b}</span>
-                </li>
-              ))}
-            </ul>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Footer ──────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 px-6 lg:px-16 py-8 text-center">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-md bg-emerald-500 flex items-center justify-center">
-            <Zap size={12} className="text-white" />
+      {/* ── Features ── */}
+      <section id="fitur" className="py-20">
+        <div className="max-w-[1100px] my-[60px] mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#1C1C1E]/[0.07] border border-[#1C1C1E]/[0.12] mb-4 text-[11px] font-bold tracking-[0.08em] uppercase text-text-secondary">
+              Fitur Platform
+            </div>
+            <h2
+              className="font-display font-bold text-text-primary mb-3 tracking-[-0.01em]"
+              style={{
+                fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+              }}
+            >
+              Fitur Unggulan
+            </h2>
+            <p className="text-[15px] text-text-muted max-w-[440px] mx-auto">
+              Semua yang Anda butuhkan untuk mengelola dan menghemat konsumsi listrik.
+            </p>
           </div>
-          <span className="font-display font-bold text-white">PlanDaya</span>
+
+          <div
+            className="grid gap-5"
+            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}
+          >
+            {features.map(({ icon: Icon, title, desc, iconColor, iconBg }) => (
+              <div
+                key={title}
+                className="bg-elevated border border-[#E5E5EA] rounded-[18px] p-6 shadow-card transition-all duration-250 cursor-default hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+              >
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
+                  style={{ background: iconBg }}
+                >
+                  <Icon size={21} color={iconColor} />
+                </div>
+                <h3 className="text-sm font-semibold text-text-primary mb-2">
+                  {title}
+                </h3>
+                <p className="text-[13px] leading-[1.6] text-text-muted">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-white/30 text-sm">
-          © 2025 PlanDaya — Blue Team Security Project · Keamanan Jaringan
-        </p>
+      </section>
+
+      {/* ── Benefits ── */}
+      <section id="tentang" className="pb-20">
+        <div className="max-w-[1100px] mx-auto px-6">
+          <div
+            className="rounded-3xl relative overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.22)]"
+            style={{
+              padding: 'clamp(36px, 6vw, 64px)',
+              background: 'linear-gradient(135deg, #1C1C1E 0%, #2D2D30 60%, #111112 100%)',
+            }}
+          >
+            {/* Decorative blobs */}
+            <div 
+              className="absolute top-0 right-0 w-[280px] h-[280px] rounded-full translate-x-[40%] -translate-y-[40%] pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)' }} 
+            />
+            <div 
+              className="absolute bottom-0 left-0 w-[200px] h-[200px] rounded-full -translate-x-[40%] translate-y-[40%] pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)' }} 
+            />
+
+            <div
+              className="relative grid items-center gap-12"
+              style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}
+            >
+              {/* Left */}
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/12 mb-5 text-[11px] font-bold tracking-[0.08em] uppercase text-white/75">
+                  Kenapa PlanDaya?
+                </div>
+                <h2
+                  className="font-display font-bold text-white leading-[1.2] mb-4 tracking-[-0.01em]"
+                  style={{ fontSize: 'clamp(1.75rem, 4vw, 2.25rem)' }}
+                >
+                  Hemat Lebih,{' '}
+                  <span className="text-white/55">Cerdas Lebih.</span>
+                </h2>
+                <p className="text-sm leading-[1.7] text-white/60 mb-8">
+                  Dengan PlanDaya, Anda tidak hanya menghemat listrik, tetapi juga mendapatkan kontrol penuh dan wawasan mendalam untuk gaya hidup yang lebih berkelanjutan.
+                </p>
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 px-6 py-[11px] rounded-xl bg-white text-[#1C1C1E] text-sm font-semibold no-underline shadow-[0_4px_16px_rgba(0,0,0,0.25)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.30)]"
+                >
+                  Coba Gratis Sekarang <ChevronRight size={16} />
+                </Link>
+              </div>
+
+              {/* Right — Benefits list */}
+              <ul className="list-none flex flex-col gap-3">
+                {benefits.map(({ text }) => (
+                  <li
+                    key={text}
+                    className="flex items-center gap-3.5 py-3.5 px-[18px] rounded-[14px] bg-white/7 border border-white/10"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-white/14 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 size={14} color="rgba(255,255,255,0.9)" />
+                    </div>
+                    <span className="text-sm font-medium text-white/85">{text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="bg-elevated border-t border-[#E5E5EA]">
+        <div className="max-w-[1100px] mx-auto py-7 px-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <Zap size={13} color="#fff" fill="#fff" />
+            </div>
+            <span className="font-display font-bold text-sm text-text-primary">
+              PlanDaya
+            </span>
+          </div>
+          <p className="text-xs text-text-placeholder text-center">
+            © 2026 PlanDaya · Hemat penggunaan listrik anda.
+          </p>
+          <div className="flex gap-5">
+            {['Privasi', 'Keamanan'].map(link => (
+              <a
+                key={link}
+                href="#"
+                className="text-xs text-text-placeholder no-underline"
+              >
+                {link}
+              </a>
+            ))}
+          </div>
+        </div>
       </footer>
     </div>
   );

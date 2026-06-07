@@ -6,7 +6,7 @@ PlanDaya dirancang dengan prinsip **Defense in Depth** untuk konteks Blue Team k
 
 ---
 
-## 🔐 Authentication & Authorization
+## Authentication & Authorization
 
 ### Token-Based Auth
 - Token dibuat dengan `bin2hex(random_bytes(40))` — 80 karakter hex acak
@@ -28,7 +28,7 @@ PlanDaya dirancang dengan prinsip **Defense in Depth** untuk konteks Blue Team k
 
 ---
 
-## 🔒 Input Validation
+## Input Validation
 
 - **Semua input divalidasi di backend** menggunakan Laravel Validation
 - Frontend validation hanya untuk UX, bukan sebagai security layer
@@ -40,7 +40,7 @@ PlanDaya dirancang dengan prinsip **Defense in Depth** untuk konteks Blue Team k
 
 ---
 
-## 🔑 Password Security
+## Password Security
 
 - Semua password di-hash menggunakan **Laravel Hash (bcrypt, cost=12)**
 - Password tidak pernah dikirim atau disimpan plaintext
@@ -49,7 +49,7 @@ PlanDaya dirancang dengan prinsip **Defense in Depth** untuk konteks Blue Team k
 
 ---
 
-## 📋 Security Logging
+## Security Logging
 
 Semua event keamanan dicatat ke `storage/logs/security.log` dengan format:
 
@@ -67,7 +67,7 @@ Event penting juga dicatat ke Firebase path `security_events` untuk monitoring r
 
 ---
 
-## 🚦 Rate Limiting
+## Rate Limiting
 
 | Endpoint           | Limit        |
 |--------------------|--------------|
@@ -79,7 +79,7 @@ Rate limit per IP address. Jika terlampaui, response `429 Too Many Requests`.
 
 ---
 
-## 🗄 Firebase Security Rules (Produksi)
+## Firebase Security Rules (Produksi)
 
 Setelah development, ganti rules Firebase ke:
 
@@ -96,7 +96,7 @@ Semua akses harus melalui Laravel (server-side) menggunakan service account.
 
 ---
 
-## 📁 Credential Management
+## Credential Management
 
 ### Yang WAJIB dijaga kerahasiaannya:
 | File                                    | Risiko jika bocor              |
@@ -112,7 +112,7 @@ Semua akses harus melalui Laravel (server-side) menggunakan service account.
 
 ---
 
-## 🔍 Security Headers (Rekomendasi Produksi)
+## Security Headers (Rekomendasi Produksi)
 
 Tambahkan di `public/.htaccess` atau nginx config:
 
@@ -125,7 +125,3 @@ Content-Security-Policy: default-src 'self'
 ```
 
 ---
-
-## 📞 Melaporkan Kerentanan
-
-Ini adalah proyek akademis Blue Team. Temuan keamanan didokumentasikan di [TESTING_SCENARIO.md](TESTING_SCENARIO.md).
