@@ -24,11 +24,12 @@ class SanitizeInput
         '/\.\.\//i',
         '/exec\s*\(/i',
         '/eval\s*\(/i',
+        '/\b(or|and)\b\s*[\'"]?\w+[\'"]?\s*=\s*[\'"]?\w+/i',
     ];
 
     public function handle(Request $request, Closure $next): Response
     {
-        $input = json_encode($request->all());
+        $input = json_encode($request->all(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         foreach ($this->patterns as $pattern) {
             if (preg_match($pattern, $input)) {

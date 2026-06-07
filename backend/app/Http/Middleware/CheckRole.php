@@ -15,7 +15,7 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        $user = $request->user();
+        $user = $request->attributes->get('auth_user');
 
         if (!$user) {
             return response()->json([

@@ -127,6 +127,14 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // ── PlanDaya Security Log ────────────────────────────────────────────
+        'security' => [
+            'driver' => 'single',
+            'path'   => storage_path('logs/security.log'),
+            'level'  => 'warning',
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+backend/vendor/
+
+# Local env files
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.backup
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/.env.*.local
+
+# Firebase credentials (never commit these)
+backend/storage/app/firebase/*.json
+backend/firebase-service-account.json
+backend/*-adminsdk-*.json
+*.json.bak
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build and logs
+frontend/dist/
+frontend/build/
+backend/storage/logs/*
+backend/bootstrap/cache/*.php
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+backend/public/build
+backend/public/mix-manifest.json
+backend/.phpunit.result.cache
+backend/phpunit.xml.bak
+backend/.phpunit.cache/

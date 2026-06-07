@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 class SecurityLogger
 {
     /**
-     * Log a security event to the security log file.
+     * Log a security event to the security log file and Firebase.
      *
      * @param string $event  The event type (e.g. LOGIN_FAILED, RATE_LIMIT_TRIGGERED)
      * @param array  $context Key-value pairs to include in the log line
@@ -22,8 +22,20 @@ class SecurityLogger
 
         $message = implode(' ', $parts);
 
-        // Write to dedicated security log channel
+        // 1. Write to dedicated security log channel (for Wazuh/Suricata)
         Log::channel('security')->warning($message);
+
+        // 2. Save to Firebase (for Admin Dashboard)
+        try {
+            $firebase = app(\App\Services\FirebaseService::class);
+            $firebase->createDocument('security_events', array_merge($context, [
+                'event'      => $event,
+                'message'    => $message,
+                'created_at' => now()->toDateTimeString(),
+            ]));
+        } catch (\Throwable $e) {
+            Log::channel('single')->error("Failed to write security event to Firebase: " . $e->getMessage());
+        }
     }
 
     // ─── Convenience helpers ──────────────────────────────────────────────────
@@ -45,7 +57,7 @@ class SecurityLogger
         ]);
     }
 
-    public static function logout(int $userId, string $ip): void
+    public static function logout(string $userId, string $ip): void
     {
         self::log('LOGOUT', [
             'user_id' => $userId,
@@ -61,7 +73,7 @@ class SecurityLogger
         ]);
     }
 
-    public static function adminAccessDenied(int $userId, string $ip, string $endpoint): void
+    public static function adminAccessDenied(string $userId, string $ip, string $endpoint): void
     {
         self::log('ADMIN_ACCESS_DENIED', [
             'user_id'  => $userId,
@@ -86,7 +98,7 @@ class SecurityLogger
         ]);
     }
 
-    public static function unauthorizedAccess(int $userId, string $ip, string $endpoint): void
+    public static function unauthorizedAccess(string $userId, string $ip, string $endpoint): void
     {
         self::log('UNAUTHORIZED_ACCESS', [
             'user_id'  => $userId,
@@ -95,7 +107,7 @@ class SecurityLogger
         ]);
     }
 
-    public static function deviceAction(string $action, int $userId, string $deviceId, string $ip): void
+    public static function deviceAction(string $action, string $userId, string $deviceId, string $ip): void
     {
         self::log("DEVICE_{$action}", [
             'user_id'   => $userId,
