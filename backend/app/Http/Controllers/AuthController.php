@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use App\Services\FirebaseService;
 use App\Services\SecurityLogger;
 
@@ -16,15 +15,19 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name'     => ['required', 'string', 'min:2', 'max:100'],
-            'email'    => ['required', 'email', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'name'                  => ['required', 'string', 'min:2', 'max:100'],
+            'email'                 => ['required', 'email', 'max:255'],
+            'password'              => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // Check if email already exists in Firebase
-        $existing = $this->firebase->getDocuments('users');
-        foreach ($existing as $user) {
-            if (isset($user['email']) && $user['email'] === $validated['email']) {
+        // Cek email sudah terdaftar atau belum
+        $existingUsers = $this->firebase->getDocuments('users');
+
+        foreach ($existingUsers as $existingUser) {
+            if (
+                isset($existingUser['email']) &&
+                strtolower($existingUser['email']) === strtolower($validated['email'])
+            ) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Email already registered.',
@@ -34,7 +37,7 @@ class AuthController extends Controller
 
         $userData = [
             'name'       => $validated['name'],
-            'email'      => $validated['email'],
+            'email'      => strtolower($validated['email']),
             'password'   => Hash::make($validated['password']),
             'role'       => 'user',
             'is_active'  => true,
@@ -44,22 +47,18 @@ class AuthController extends Controller
 
         $user = $this->firebase->createDocument('users', $userData);
 
-        // Log security event
         SecurityLogger::register($validated['email'], $request->ip());
 
-        // Log activity
         $this->firebase->createDocument('activity_logs', [
-            'user_id'    => $user['id'],
+            'user_id'    => $user['id'] ?? null,
             'action'     => 'REGISTER',
             'ip'         => $request->ip(),
             'user_agent' => $request->userAgent(),
             'created_at' => now()->toDateTimeString(),
         ]);
 
-        // Generate simple token (use Sanctum token pattern)
         $token = bin2hex(random_bytes(40));
 
-        // Store token hash in Firebase
         $this->firebase->createDocument('user_tokens', [
             'user_id'    => $user['id'],
             'token_hash' => hash('sha256', $token),
@@ -68,6 +67,7 @@ class AuthController extends Controller
         ]);
 
         unset($user['password']);
+        unset($user['password_hash']);
 
         return response()->json([
             'success' => true,
@@ -87,23 +87,35 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        // Find user by email
+        $email = strtolower($validated['email']);
+
+        // Cari user berdasarkan email
         $users = $this->firebase->getDocuments('users');
-        $user  = null;
+        $user = null;
+
         foreach ($users as $u) {
-            if (isset($u['email']) && $u['email'] === $validated['email']) {
+            if (
+                isset($u['email']) &&
+                strtolower($u['email']) === $email
+            ) {
                 $user = $u;
                 break;
             }
         }
 
-        // Log failed login attempts
-        if (!$user || !Hash::check($validated['password'], $user['password'] ?? '')) {
-            SecurityLogger::loginFailed($validated['email'], $request->ip());
+        // Ambil password hash dari field password atau password_hash
+        $storedPassword = '';
 
-            // Record login attempt in Firebase
+        if ($user) {
+            $storedPassword = $user['password'] ?? $user['password_hash'] ?? '';
+        }
+
+        // Jika user tidak ditemukan atau password salah
+        if (!$user || !$storedPassword || !Hash::check($validated['password'], $storedPassword)) {
+            SecurityLogger::loginFailed($email, $request->ip());
+
             $this->firebase->createDocument('login_attempts', [
-                'email'      => $validated['email'],
+                'email'      => $email,
                 'ip'         => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'status'     => 'failed',
@@ -117,8 +129,19 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Cek status akun
         if (!($user['is_active'] ?? true)) {
-            SecurityLogger::loginFailed($validated['email'], $request->ip(), 'account_disabled');
+            SecurityLogger::loginFailed($email, $request->ip(), 'account_disabled');
+
+            $this->firebase->createDocument('login_attempts', [
+                'email'      => $email,
+                'ip'         => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'status'     => 'failed',
+                'reason'     => 'account_disabled',
+                'created_at' => now()->toDateTimeString(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Account is disabled.',
@@ -135,11 +158,10 @@ class AuthController extends Controller
             'expires_at' => now()->addDays(7)->toDateTimeString(),
         ]);
 
-        // Log success
-        SecurityLogger::loginSuccess($validated['email'], $request->ip());
+        SecurityLogger::loginSuccess($email, $request->ip());
 
         $this->firebase->createDocument('login_attempts', [
-            'email'      => $validated['email'],
+            'email'      => $email,
             'ip'         => $request->ip(),
             'user_agent' => $request->userAgent(),
             'status'     => 'success',
@@ -155,6 +177,7 @@ class AuthController extends Controller
         ]);
 
         unset($user['password']);
+        unset($user['password_hash']);
 
         return response()->json([
             'success' => true,
@@ -173,10 +196,14 @@ class AuthController extends Controller
 
         if ($token) {
             $tokenHash = hash('sha256', $token);
-            $tokens    = $this->firebase->getDocuments('user_tokens');
+            $tokens = $this->firebase->getDocuments('user_tokens');
 
             foreach ($tokens as $t) {
-                if (isset($t['token_hash']) && $t['token_hash'] === $tokenHash) {
+                if (
+                    isset($t['token_hash']) &&
+                    $t['token_hash'] === $tokenHash &&
+                    isset($t['id'])
+                ) {
                     $this->firebase->deleteDocument('user_tokens', $t['id']);
                     break;
                 }
@@ -184,12 +211,15 @@ class AuthController extends Controller
         }
 
         $user = $request->attributes->get('auth_user');
+
         if ($user) {
             SecurityLogger::logout($user['id'] ?? 0, $request->ip());
+
             $this->firebase->createDocument('activity_logs', [
-                'user_id'    => $user['id'],
+                'user_id'    => $user['id'] ?? null,
                 'action'     => 'LOGOUT',
                 'ip'         => $request->ip(),
+                'user_agent' => $request->userAgent(),
                 'created_at' => now()->toDateTimeString(),
             ]);
         }
@@ -213,6 +243,7 @@ class AuthController extends Controller
         }
 
         unset($user['password']);
+        unset($user['password_hash']);
 
         return response()->json([
             'success' => true,
